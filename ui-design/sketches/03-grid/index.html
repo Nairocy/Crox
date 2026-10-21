@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Crox · 稿 03 网格终端</title>
+<style>
+:root{ --ink:#0b0b0b; --red:#e30613; --gray:#6f6f6f; --hair:#d8d8d8; }
+*{box-sizing:border-box;border-radius:0;margin:0;padding:0}
+body{
+  background:#eaeaea;font-family:Helvetica,"Helvetica Neue",Arial,"Microsoft YaHei","PingFang SC",sans-serif;
+  color:var(--ink);display:flex;gap:26px;padding:30px 32px;align-items:flex-start;
+}
+.col{display:flex;flex-direction:column;gap:10px}
+.lab{font-size:12px;letter-spacing:.22em;color:#555;font-weight:700}
+.phone{width:412px;height:915px;background:#fff;border:1px solid #0b0b0b;position:relative;overflow:hidden;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+svg{display:block}
+.mono{font-family:ui-monospace,Consolas,"Cascadia Mono",monospace}
+
+/* ---------- 顶栏（黑块） ---------- */
+.top{flex:none;background:var(--ink);color:#fff;display:flex;align-items:center;height:56px;padding:0 18px;gap:11px}
+.mark{width:17px;height:17px;background:var(--red);flex:none}
+.bn{font-size:15px;font-weight:700;letter-spacing:.18em}
+.top .sp{flex:1}
+.tib{width:36px;height:36px;border:1px solid rgba(255,255,255,.55);display:inline-flex;align-items:center;justify-content:center;color:#fff;transition:background .15s,border-color .15s}
+.tib:hover{background:var(--red);border-color:var(--red)}
+/* 终端切换条 */
+.tbar{flex:none;display:flex;align-items:center;border-bottom:2px solid var(--ink);background:#fff;padding:0 18px;height:44px;gap:12px}
+.seg2{display:inline-flex;border:1px solid var(--ink)}
+.seg2 button{padding:6px 16px;font-size:11px;font-weight:700;letter-spacing:.14em;background:#fff;border-left:1px solid var(--ink)}
+.seg2 button:first-child{border-left:0}
+.seg2 button.on{background:var(--ink);color:#fff}
+.tbar .st{font-size:9px;color:var(--gray);letter-spacing:.22em;margin-left:auto;text-transform:uppercase}
+
+/* ---------- 主区 ---------- */
+.main{flex:1;overflow:hidden}
+/* 空态 */
+.hero-blk{background:var(--ink);color:#fff;padding:24px 20px 22px}
+.hero-blk .t1{font-size:38px;font-weight:700;letter-spacing:-.01em;line-height:1}
+.hero-blk .t2{font-size:9.5px;letter-spacing:.34em;color:rgba(255,255,255,.62);margin-top:9px;text-transform:uppercase}
+.kv{border-bottom:1px solid var(--ink)}
+.kv .row{display:flex;border-top:1px solid var(--ink);font-size:12px}
+.kv .row:first-child{border-top:0}
+.kv .k{width:118px;flex:none;padding:9px 20px;border-right:1px solid var(--ink);color:var(--gray);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase}
+.kv .v{padding:9px 16px;flex:1}
+.kv .v .dot{display:inline-block;width:7px;height:7px;background:var(--red);margin-right:7px}
+.sect{padding:14px 20px 6px;font-size:9.5px;letter-spacing:.28em;color:var(--gray);text-transform:uppercase}
+.cmds{display:flex;flex-direction:column}
+.cmd{display:flex;align-items:baseline;gap:12px;padding:12px 20px;border-top:1px solid var(--hair);font-size:13px;text-align:left;transition:background .15s}
+.cmd:hover{background:var(--red);color:#fff}
+.cmd .no{font-size:10px;color:var(--red);flex:none;width:20px;font-weight:700}
+.cmd:hover .no{color:rgba(255,255,255,.85)}
+
+/* ---------- 消息（表格行） ---------- */
+.msg{border-bottom:1px solid var(--ink)}
+.msg .head{display:flex;align-items:center;gap:10px;padding:7px 20px;border-bottom:1px solid var(--hair);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray)}
+.msg .head .tag{color:var(--ink);font-weight:700}
+.msg .head .rt{margin-left:auto;letter-spacing:.08em}
+.msg .cnt{padding:12px 20px 14px;font-size:13.5px;line-height:1.7}
+.msg.u{background:#f6f6f6}
+.msg .thumb{width:150px;height:104px;border:1px solid var(--ink);background:#ededed;margin:0 0 9px;position:relative;overflow:hidden}
+.msg .thumb i{position:absolute;background:#bcbcbc}
+.msg .thumb .tag{position:absolute;right:0;bottom:0;background:var(--ink);color:#fff;font-size:8.5px;padding:2px 6px;letter-spacing:.14em}
+.thinkrow .head{border-bottom:0}
+.thinkrow .cnt{padding-top:8px}
+.think-b{border-left:2px solid var(--red);padding:2px 0 2px 12px;margin:8px 0 0;color:var(--gray);font-size:12px;line-height:1.7;display:none}
+.thinkrow.open .think-b{display:block}
+.plus{color:var(--red);font-weight:700}
+.code{margin:8px 0;border:1px solid var(--ink);background:#fafafa;padding:10px 12px;font-size:11.5px;line-height:1.7;white-space:pre;overflow:hidden}
+.msg .foot{padding:0 20px 10px;font-size:9.5px;color:var(--gray);letter-spacing:.12em;text-transform:uppercase}
+.cursor{display:inline-block;width:8px;height:13px;background:var(--red);vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ---------- 输入区 ---------- */
+.composer{flex:none;border-top:2px solid var(--ink);background:#fff}
+.cnote{display:flex;align-items:center;padding:9px 20px 0;gap:10px}
+.seg button{padding:5px 12px;font-size:10px;font-weight:700;letter-spacing:.12em;border:1px solid var(--ink);border-left:0;background:#fff}
+.seg{border-left:1px solid var(--ink);display:inline-flex}
+.seg button.on{background:var(--ink);color:#fff}
+.hint{margin-left:auto;font-size:9.5px;letter-spacing:.16em;color:var(--gray);text-transform:uppercase}
+.crow{display:flex;gap:10px;align-items:flex-end;padding:10px 20px 12px}
+.imgb{width:54px;height:52px;border:1px solid var(--ink);background:#fff;flex:none;display:inline-flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.imgb:hover{background:var(--red);border-color:var(--red);color:#fff}
+.inp{flex:1;border:1px solid var(--ink);min-height:52px;padding:14px 13px;font-size:13.5px;color:var(--gray);display:flex;align-items:center}
+.send{width:54px;height:52px;flex:none;background:var(--red);border:1px solid var(--red);color:#fff;display:inline-flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}
+.send:hover{background:var(--ink);border-color:var(--ink)}
+
+/* ---------- 抽屉 ---------- */
+.scrim{position:absolute;inset:0;background:rgba(11,11,11,.32);z-index:5}
+.drawer{position:absolute;top:0;left:0;bottom:0;width:88%;background:#fff;border-right:2px solid var(--ink);z-index:6;display:flex;flex-direction:column}
+.dhead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:2px solid var(--ink);background:#fff}
+.dtitle{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase}
+.hlist{flex:1;overflow:hidden}
+.hitem{display:flex;align-items:stretch;border-bottom:1px solid var(--ink)}
+.hmain{flex:1;text-align:left;padding:12px 0 12px 16px;min-width:0;display:flex;gap:12px}
+.hno{font-size:10.5px;color:var(--red);font-weight:700;flex:none;padding-top:2px}
+.hmid{min-width:0}
+.htitle{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hmeta{font-size:9px;color:var(--gray);letter-spacing:.14em;margin-top:4px;text-transform:uppercase}
+.hdel{flex:none;width:46px;border-left:1px solid var(--hair);color:var(--gray);display:inline-flex;align-items:center;justify-content:center}
+.dfoot{flex:none;border-top:2px solid var(--ink);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.newbtn{background:var(--red);color:#fff;border:1px solid var(--red);padding:11px 18px;font-size:11.5px;font-weight:700;letter-spacing:.12em;display:inline-flex;align-items:center;gap:9px;transition:background .15s}
+.foot-note{font-size:9px;color:var(--gray);letter-spacing:.14em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<!-- ============ 屏 1：空态 ============ -->
+<div class="col">
+<div class="lab">03-A · 新会话（空态 · 系统面板）</div>
+<div class="phone">
+  <div class="top">
+    <span class="mark"></span><span class="bn">CROX</span><span class="sp"></span>
+    <button class="tib" aria-label="新对话"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v12M2 8h12"/></svg></button>
+    <button class="tib" aria-label="设置"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M 21.3 10.4L 21.3 13.6L 19.4 13.3L 18.1 16.3L 19.7 17.4L 17.4 19.7L 16.3 18.1L 13.3 19.4L 13.6 21.3L 10.4 21.3L 10.7 19.4L 7.7 18.1L 6.6 19.7L 4.3 17.4L 5.9 16.3L 4.6 13.3L 2.7 13.6L 2.7 10.4L 4.6 10.7L 5.9 7.7L 4.3 6.6L 6.6 4.3L 7.7 5.9L 10.7 4.6L 10.4 2.7L 13.6 2.7L 13.3 4.6L 16.3 5.9L 17.4 4.3L 19.7 6.6L 18.1 7.7L 19.4 10.7 Z"/><circle cx="12" cy="12" r="3.1"/></svg></button>
+  </div>
+  <div class="tbar">
+    <span class="seg2"><button class="on">T1</button><button>本喵</button></span>
+    <span class="st">思考终端 · Ready</span>
+  </div>
+  <div class="main">
+    <div class="hero-blk">
+      <div class="t1">T1</div>
+      <div class="t2">Crox · Thinking Terminal</div>
+    </div>
+    <div class="kv">
+      <div class="row"><div class="k">Model</div><div class="v">Crox T1 (Qwen3.5-4B · q4_k_m)</div></div>
+      <div class="row"><div class="k">Context</div><div class="v">16K tokens</div></div>
+      <div class="row"><div class="k">State</div><div class="v"><span class="dot"></span>就绪 · 思考可见</div></div>
+    </div>
+    <div class="sect">Suggested / 建议指令</div>
+    <div class="cmds">
+      <button class="cmd"><span class="no mono">01</span>设计一个书架应用的数据库 schema</button>
+      <button class="cmd"><span class="no mono">02</span>解释 CAP 定理，带一个生活例子</button>
+      <button class="cmd"><span class="no mono">03</span>写一周训练计划，注意恢复日安排</button>
+    </div>
+  </div>
+  <div class="composer">
+    <div class="cnote">
+      <span class="seg"><button class="on">思考 开</button><button>关</button></span>
+      <span class="hint">16K CTX · 图片可发</span>
+    </div>
+    <div class="crow">
+      <button class="imgb" aria-label="选择图片"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3.2" y="4.6" width="17.6" height="14.8"/><circle cx="8.6" cy="9.8" r="1.7"/><path d="M4 17.5l5.2-4.4 4 3.3 3.1-2.6 4.5 3.7"/></svg></button>
+      <div class="inp">输入指令……</div>
+      <button class="send" aria-label="发送"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h16M13 5.5L19.5 12 13 18.5"/></svg></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============ 屏 2：对话 ============ -->
+<div class="col">
+<div class="lab">03-B · 对话（表格行 · 思考展开 · 图片）</div>
+<div class="phone">
+  <div class="top">
+    <span class="mark"></span><span class="bn">CROX</span><span class="sp"></span>
+    <button class="tib" aria-label="新对话"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v12M2 8h12"/></svg></button>
+    <button class="tib" aria-label="设置"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M 21.3 10.4L 21.3 13.6L 19.4 13.3L 18.1 16.3L 19.7 17.4L 17.4 19.7L 16.3 18.1L 13.3 19.4L 13.6 21.3L 10.4 21.3L 10.7 19.4L 7.7 18.1L 6.6 19.7L 4.3 17.4L 5.9 16.3L 4.6 13.3L 2.7 13.6L 2.7 10.4L 4.6 10.7L 5.9 7.7L 4.3 6.6L 6.6 4.3L 7.7 5.9L 10.7 4.6L 10.4 2.7L 13.6 2.7L 13.3 4.6L 16.3 5.9L 17.4 4.3L 19.7 6.6L 18.1 7.7L 19.4 10.7 Z"/><circle cx="12" cy="12" r="3.1"/></svg></button>
+  </div>
+  <div class="tbar">
+    <span class="seg2"><button class="on">T1</button><button>本喵</button></span>
+    <span class="st">思考终端 · Ready</span>
+  </div>
+  <div class="main" style="overflow:hidden">
+    <article class="msg u">
+      <div class="head"><span class="tag">[User]</span><span class="rt mono">22:41</span></div>
+      <div class="cnt">帮我设计一个书架应用的数据库 schema：书和书架多对多，书要有阅读状态。</div>
+    </article>
+    <article class="msg thinkrow open" data-think>
+      <div class="head"><span class="tag">[Crox T1]</span><span class="rt mono">8.4S · 23 TOK/S</span></div>
+      <div class="cnt">
+        <button class="thinkline" style="font-size:10px;letter-spacing:.2em;color:var(--red);text-transform:uppercase;font-weight:700"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h8M1 7h8"/></svg> Reasoning · 230 字 <span class="plus">[ 收起 ]</span></button>
+        <div class="think-b">用户要的是一个多对多结构。关键分歧点：阅读状态挂在哪？挂在 books 上最简单；但如果同一本书在两个书架上的进度不同，就要挪进关联表。先给最常用的方案，把例外写进说明。</div>
+        <div class="code mono">shelves    (id, name, created_at)
+books      (id, title, author, status)
+book_shelf (book_id, shelf_id, added_at)</div>
+        <div style="font-size:13.5px">status 用 0/1/2 表示未读、在读、读完。若一本书在不同书架进度不同，把 status 挪进 book_shelf。</div>
+      </div>
+    </article>
+    <article class="msg u">
+      <div class="head"><span class="tag">[User]</span><span class="rt mono">22:43</span></div>
+      <div class="cnt">
+        <div class="thumb">
+          <i style="left:12px;top:14px;width:96px;height:6px"></i><i style="left:12px;top:30px;width:118px;height:6px"></i><i style="left:12px;top:46px;width:74px;height:6px"></i><i style="left:12px;top:66px;width:104px;height:6px"></i>
+          <span class="tag mono">IMG-01</span>
+        </div>
+        按这张手稿补个索引设计
+      </div>
+    </article>
+    <article class="msg">
+      <div class="head"><span class="tag">[Crox T1]</span><span class="rt mono">22:43</span></div>
+      <div class="cnt">看手稿，主要是 book_shelf 上的两个方向索引——<span class="cursor"></span></div>
+    </article>
+  </div>
+  <div class="composer">
+    <div class="cnote">
+      <span class="seg"><button class="on">思考 开</button><button>关</button></span>
+      <span class="hint">16K CTX · 图片可发</span>
+    </div>
+    <div class="crow">
+      <button class="imgb" aria-label="选择图片"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3.2" y="4.6" width="17.6" height="14.8"/><circle cx="8.6" cy="9.8" r="1.7"/><path d="M4 17.5l5.2-4.4 4 3.3 3.1-2.6 4.5 3.7"/></svg></button>
+      <div class="inp">输入指令……</div>
+      <button class="send" aria-label="发送"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h16M13 5.5L19.5 12 13 18.5"/></svg></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============ 屏 3：抽屉 ============ -->
+<div class="col">
+<div class="lab">03-C · 会话抽屉</div>
+<div class="phone">
+  <div class="top">
+    <span class="mark"></span><span class="bn">CROX</span><span class="sp"></span>
+    <button class="tib" aria-label="新对话"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v12M2 8h12"/></svg></button>
+    <button class="tib" aria-label="设置"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M 21.3 10.4L 21.3 13.6L 19.4 13.3L 18.1 16.3L 19.7 17.4L 17.4 19.7L 16.3 18.1L 13.3 19.4L 13.6 21.3L 10.4 21.3L 10.7 19.4L 7.7 18.1L 6.6 19.7L 4.3 17.4L 5.9 16.3L 4.6 13.3L 2.7 13.6L 2.7 10.4L 4.6 10.7L 5.9 7.7L 4.3 6.6L 6.6 4.3L 7.7 5.9L 10.7 4.6L 10.4 2.7L 13.6 2.7L 13.3 4.6L 16.3 5.9L 17.4 4.3L 19.7 6.6L 18.1 7.7L 19.4 10.7 Z"/><circle cx="12" cy="12" r="3.1"/></svg></button>
+  </div>
+  <div class="tbar">
+    <span class="seg2"><button class="on">T1</button><button>本喵</button></span>
+    <span class="st">思考终端 · Ready</span>
+  </div>
+  <div class="main">
+    <div class="hero-blk">
+      <div class="t1">T1</div>
+      <div class="t2">Crox · Thinking Terminal</div>
+    </div>
+  </div>
+  <div class="scrim"></div>
+  <aside class="drawer">
+    <div class="dhead">
+      <span class="dtitle">Sessions · 会话</span>
+      <button class="tib" style="border-color:var(--ink);color:var(--ink)" aria-label="关闭"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </div>
+    <div class="hlist">
+      <div class="hitem"><button class="hmain"><span class="hno mono">001</span><span class="hmid"><div class="htitle" style="color:var(--red)">书架应用数据库 schema</div><div class="hmeta mono">NOW · 4 MSG</div></span></button><button class="hdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="hitem"><button class="hmain"><span class="hno mono">002</span><span class="hmid"><div class="htitle">解释 CAP 定理</div><div class="hmeta mono">21:05 · 6 MSG</div></span></button><button class="hdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="hitem"><button class="hmain"><span class="hno mono">003</span><span class="hmid"><div class="htitle">一周训练计划（注意恢复）</div><div class="hmeta mono">17:22 · 12 MSG</div></span></button><button class="hdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="hitem"><button class="hmain"><span class="hno mono">004</span><span class="hmid"><div class="htitle">给产品写一条更新日志</div><div class="hmeta mono">YDAY · 2 MSG</div></span></button><button class="hdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="hitem"><button class="hmain"><span class="hno mono">005</span><span class="hmid"><div class="htitle">Rust 所有权，讲给新手</div><div class="hmeta mono">10-08 · 9 MSG</div></span></button><button class="hdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+    </div>
+    <div class="dfoot">
+      <button class="newbtn"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1v10M1 6h10"/></svg>新建会话</button>
+      <span class="foot-note">Local Storage</span>
+    </div>
+  </aside>
+</div>
+</div>
+
+<script>
+document.querySelectorAll('.msg[data-think]').forEach(function(m){
+  var btn=m.querySelector('.thinkline');
+  btn.addEventListener('click',function(){
+    m.classList.toggle('open');
+    var p=btn.querySelector('.plus'); if(p) p.textContent=m.classList.contains('open')?'[ 收起 ]':'[ 展开 + ]';
+  });
+});
+document.querySelectorAll('.seg2').forEach(function(seg){
+  seg.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b)return;
+    seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');
+  });
+});
+document.querySelectorAll('.cmd').forEach(function(c){
+  c.addEventListener('click',function(){
+    document.querySelectorAll('.inp').forEach(function(i){ i.textContent=c.textContent.replace(/^\s*0\d\s*/,''); i.style.color='#0b0b0b'; });
+  });
+});
+</script>
+</body>
+</html>

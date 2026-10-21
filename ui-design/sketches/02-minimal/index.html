@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Crox · 稿 02 极简通讯</title>
+<style>
+:root{ --ink:#0b0b0b; --red:#e30613; --gray:#6f6f6f; --hair:#e2e2e2; }
+*{box-sizing:border-box;border-radius:0;margin:0;padding:0}
+body{
+  background:#eaeaea;font-family:Helvetica,"Helvetica Neue",Arial,"Microsoft YaHei","PingFang SC",sans-serif;
+  color:var(--ink);display:flex;gap:26px;padding:30px 32px;align-items:flex-start;
+}
+.col{display:flex;flex-direction:column;gap:10px}
+.lab{font-size:12px;letter-spacing:.22em;color:#555;font-weight:700}
+.phone{width:412px;height:915px;background:#fff;border:1px solid #0b0b0b;position:relative;overflow:hidden;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+svg{display:block}
+
+/* ---------- 顶栏（极简，居中字标） ---------- */
+.top{flex:none;display:flex;align-items:center;height:54px;padding:0 14px;border-bottom:1px solid var(--hair);background:#fff}
+.top .grow{flex:1;display:flex}
+.top .grow.r{justify-content:flex-end}
+.wordmark{font-size:14px;font-weight:700;letter-spacing:.3em;text-indent:.3em}
+.tb{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink);transition:color .15s}
+.tb:hover{color:var(--red)}
+.term{margin-left:auto;font-size:10px;color:var(--gray);letter-spacing:.14em;display:flex;align-items:center;gap:6px}
+.term i{width:5px;height:5px;background:var(--red);display:inline-block}
+
+/* ---------- 主区 ---------- */
+.main{flex:1;overflow:hidden;padding:0 22px}
+.hero{padding-top:96px}
+.hk{font-size:10px;color:var(--gray);letter-spacing:.24em;text-transform:uppercase}
+h1{font-size:29px;font-weight:700;letter-spacing:-.015em;line-height:1.2;margin-top:16px}
+.chips{margin-top:30px;display:flex;flex-direction:column;gap:10px}
+.chip{border:1px solid var(--ink);background:#fff;padding:12px 15px;font-size:13px;text-align:left;transition:background .15s,color .15s}
+.chip:hover{background:var(--red);border-color:var(--red);color:#fff}
+.hintline{margin-top:34px;font-size:11px;color:var(--gray);line-height:1.8}
+
+/* ---------- 消息 ---------- */
+.chat{padding-top:14px;display:flex;flex-direction:column;gap:20px}
+.row{display:flex}
+.row.u{justify-content:flex-end}
+.bub{max-width:78%;background:var(--ink);color:#fff;padding:10px 14px;font-size:14px;line-height:1.65}
+.bub .im{width:150px;height:104px;border:1px solid rgba(255,255,255,.55);margin:0 0 8px;background:#2a2a2a;position:relative;overflow:hidden}
+.bub .im i{position:absolute;background:#5c5c5c}
+.ai{flex:1;min-width:0;padding-right:6px}
+.ai-h{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--gray);letter-spacing:.06em;margin-bottom:7px}
+.ai-h b{font-weight:700;color:var(--ink);letter-spacing:.02em}
+.ai-h .dots{color:var(--red)}
+.ai-b{font-size:14.5px;line-height:1.8}
+.ai-b p{margin:0 0 8px}
+.ai-b p:last-child{margin-bottom:0}
+.code{margin:9px 0;background:#f4f4f4;border:1px solid var(--hair);padding:11px 13px;font-family:ui-monospace,Consolas,"Cascadia Mono",monospace;font-size:11.5px;line-height:1.7;white-space:pre;overflow:auto}
+.thinkline{font-size:10.5px;color:var(--gray);letter-spacing:.06em;background:none;border:0;padding:0;display:flex;align-items:center;gap:7px;margin-bottom:8px;text-align:left}
+.thinkline:hover{color:var(--red)}
+.thinkb{display:none;border-left:2px solid var(--hair);padding:2px 0 2px 12px;margin:0 0 10px;color:var(--gray);font-size:12.5px;line-height:1.75}
+.thinkb.on{display:block}
+.perf{font-size:10px;color:#a0a0a0;letter-spacing:.08em;margin-top:7px}
+.cursor{display:inline-block;width:8px;height:14px;background:var(--red);vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ---------- 输入区（浮条） ---------- */
+.composer{flex:none;padding:0 16px 14px}
+.mode{font-size:10px;color:var(--gray);letter-spacing:.18em;text-transform:uppercase;text-align:center;margin-bottom:9px}
+.bar{display:flex;align-items:center;border:1px solid var(--ink);background:#fff;height:54px;padding:0 7px}
+.bar .ib{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink);transition:color .15s;flex:none}
+.bar .ib:hover{color:var(--red)}
+.bar .tx{flex:1;font-size:14px;color:var(--gray);padding:0 6px;overflow:hidden;white-space:nowrap}
+.bar .send{width:40px;height:40px;background:var(--ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;transition:background .15s}
+.bar .send:hover{background:var(--red)}
+
+/* ---------- 抽屉屏（全屏白） ---------- */
+.fulldrawer{position:absolute;inset:0;background:#fff;z-index:6;display:flex;flex-direction:column;padding:0 22px}
+.fd-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:20px 0 16px;border-bottom:2px solid var(--ink)}
+.fd-title{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.sess{flex:1;overflow:hidden}
+.srow{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--hair)}
+.smain{flex:1;text-align:left;min-width:0}
+.stitle{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow.cur .stitle{color:var(--red)}
+.smeta{font-size:11.5px;color:var(--gray);margin-top:3px}
+.sdel{flex:none;width:30px;height:30px;color:var(--gray);display:inline-flex;align-items:center;justify-content:center}
+.sdel:hover{color:var(--red)}
+.fd-foot{flex:none;padding:14px 0 18px}
+.fd-foot .newbtn{width:100%;background:var(--ink);color:#fff;padding:15px 0;font-size:13px;font-weight:700;letter-spacing:.14em;display:flex;align-items:center;justify-content:center;gap:9px;transition:background .15s}
+.fd-foot .newbtn:hover{background:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- ============ 屏 1：空态 ============ -->
+<div class="col">
+<div class="lab">02-A · 新会话（空态）</div>
+<div class="phone">
+  <div class="top">
+    <div class="grow"><button class="tb" aria-label="历史"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17"/></svg></button></div>
+    <span class="wordmark">CROX</span>
+    <div class="grow r"><button class="tb" aria-label="新对话"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 2v12M2 8h12"/></svg></button></div>
+  </div>
+  <div class="main">
+    <div class="hero">
+      <div class="hk">Crox T1 · 深度思考</div>
+      <h1>今天，想问什么？</h1>
+      <div class="chips">
+        <button class="chip">设计一个书架应用的数据库 schema</button>
+        <button class="chip">解释 CAP 定理，带一个生活例子</button>
+        <button class="chip">写一周训练计划，注意恢复日安排</button>
+      </div>
+      <div class="hintline">回答前会先思考——点开「思考」可以看全过程。<br>图片也可以直接发给我。</div>
+    </div>
+  </div>
+  <div class="composer">
+    <div class="mode">Crox T1 · 深度思考</div>
+    <div class="bar">
+      <button class="ib" aria-label="选择图片"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.2" y="4.6" width="17.6" height="14.8"/><circle cx="8.6" cy="9.8" r="1.7"/><path d="M4 17.5l5.2-4.4 4 3.3 3.1-2.6 4.5 3.7"/></svg></button>
+      <div class="tx">给 Crox 发消息……</div>
+      <button class="send" aria-label="发送"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h16M13 5.5L19.5 12 13 18.5"/></svg></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============ 屏 2：对话 ============ -->
+<div class="col">
+<div class="lab">02-B · 对话（用户黑块 / 思考折叠 / 图片）</div>
+<div class="phone">
+  <div class="top">
+    <div class="grow"><button class="tb" aria-label="历史"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17"/></svg></button></div>
+    <span class="wordmark">CROX</span>
+    <div class="grow r"><button class="tb" aria-label="新对话"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 2v12M2 8h12"/></svg></button></div>
+  </div>
+  <div class="main">
+    <div class="chat">
+      <div class="row u"><div class="bub">帮我设计一个书架应用的数据库 schema：书和书架多对多，书要有阅读状态。</div></div>
+      <div class="row">
+        <div class="ai">
+          <div class="ai-h"><b>Crox T1</b><span>·</span><span>22:41</span><span style="margin-left:auto">8.4s · 23 tok/s</span></div>
+          <button class="thinkline" data-think><svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><path d="M2 1l6 4-6 4z"/></svg>已思考 230 字<span class="dots">·</span>点开看</button>
+          <div class="thinkb" data-thinkb>用户要的是一个多对多结构。关键分歧点：阅读状态挂在哪？挂在 books 上最简单；但如果同一本书在两个书架上的进度不同，就要挪进关联表。先给最常用的方案，把例外写进说明。</div>
+          <div class="ai-b">
+            <p>三张表就够。阅读状态默认挂在书上：</p>
+            <div class="code">shelves    (id, name, created_at)
+books      (id, title, author, status)
+book_shelf (book_id, shelf_id, added_at)</div>
+            <p>status 用 0/1/2 表示未读、在读、读完。若一本书在不同书架进度不同，把 status 挪进 book_shelf。</p>
+          </div>
+        </div>
+      </div>
+      <div class="row u">
+        <div class="bub">
+          <div class="im"><i style="left:14px;top:16px;width:88px;height:6px"></i><i style="left:14px;top:32px;width:110px;height:6px"></i><i style="left:14px;top:48px;width:70px;height:6px"></i><i style="left:14px;top:70px;width:96px;height:6px"></i></div>
+          按这张手稿补个索引设计
+        </div>
+      </div>
+      <div class="row">
+        <div class="ai">
+          <div class="ai-h"><b>Crox T1</b><span>·</span><span>22:43</span></div>
+          <div class="ai-b"><p>看手稿，主要是 book_shelf 上的两个方向索引——<span class="cursor"></span></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="composer">
+    <div class="mode">Crox T1 · 深度思考</div>
+    <div class="bar">
+      <button class="ib" aria-label="选择图片"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.2" y="4.6" width="17.6" height="14.8"/><circle cx="8.6" cy="9.8" r="1.7"/><path d="M4 17.5l5.2-4.4 4 3.3 3.1-2.6 4.5 3.7"/></svg></button>
+      <div class="tx">给 Crox 发消息……</div>
+      <button class="send" aria-label="发送"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h16M13 5.5L19.5 12 13 18.5"/></svg></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============ 屏 3：历史（全屏抽屉） ============ -->
+<div class="col">
+<div class="lab">02-C · 历史（全屏）</div>
+<div class="phone">
+  <div class="top">
+    <div class="grow"><button class="tb" aria-label="历史"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17"/></svg></button></div>
+    <span class="wordmark">CROX</span>
+    <div class="grow r"><button class="tb" aria-label="新对话"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 2v12M2 8h12"/></svg></button></div>
+  </div>
+  <div class="fulldrawer">
+    <div class="fd-head">
+      <span class="fd-title">历史</span>
+      <button class="tb" aria-label="关闭"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </div>
+    <div class="sess">
+      <div class="srow cur"><button class="smain"><div class="stitle">书架应用数据库 schema</div><div class="smeta">刚刚 · 4 条消息</div></button><button class="sdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="srow"><button class="smain"><div class="stitle">解释 CAP 定理</div><div class="smeta">今天 21:05 · 6 条消息</div></button><button class="sdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="srow"><button class="smain"><div class="stitle">一周训练计划（注意恢复）</div><div class="smeta">今天 17:22 · 12 条消息</div></button><button class="sdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="srow"><button class="smain"><div class="stitle">给产品写一条更新日志</div><div class="smeta">昨天 23:10 · 2 条消息</div></button><button class="sdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+      <div class="srow"><button class="smain"><div class="stitle">Rust 所有权，讲给新手</div><div class="smeta">10-08 · 9 条消息</div></button><button class="sdel"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
+    </div>
+    <div class="fd-foot">
+      <button class="newbtn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1v10M1 6h10"/></svg>新对话</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+document.querySelectorAll('[data-think]').forEach(function(t){
+  t.addEventListener('click',function(){
+    var b=t.parentElement.querySelector('[data-thinkb]');
+    if(b) b.classList.toggle('on');
+  });
+});
+document.querySelectorAll('.chip').forEach(function(s){
+  s.addEventListener('click',function(){
+    document.querySelectorAll('.bar .tx').forEach(function(i){ i.textContent=s.textContent; i.style.color='#0b0b0b'; });
+  });
+});
+</script>
+</body>
+</html>
